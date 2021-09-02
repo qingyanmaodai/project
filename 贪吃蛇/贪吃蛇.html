@@ -21,13 +21,22 @@
         #map{
             width: 500px;
             height: 500px;
-            background-color: pink;
+            background-color:lightblue;
         }
+        #score{
+            text-indent:180px;
+            margin: 0;
+        }
+        span{
+        position: relative;
+        margin: 150px;
+        /*left: ;*/
+        }   
     </style>
 </head>
 <body>
     <!-- 地图为500*500 10*10 表格是用来当刻度的-->
-    <table border="1px" cellspacing="0px">
+    <table border="1" cellspacing="0">
         <tr>
             <td></td>
             <td></td>
@@ -152,15 +161,22 @@
     <!-- 蛇头 身体包括食物  都是由js动态创建出的div 必须要以div做地图方便后期appendChild -->
     <div id="map">
     </div>
-    <h1>Score:0</h1>
-    <button>快</button>
-    <button>中</button>
-    <button>慢</button>
+    <span id="score"><h1>得分:0</h1></span>
+    <span>
+        <button onclick="changeTime('200')" style="width:50px; height:50px;font-size: 30px;">快</button>
+        <button onclick="changeTime('500')" style="width:50px; height:50px;font-size: 30px;">中</button>
+        <button onclick="changeTime('1000')" style="width:50px; height:50px;font-size: 30px;">慢</button>
+    </span>
     <script>
         // 在刷新页面的时候不仅要产生地图，还要产生两个div，分别对应蛇头以及身体
         // 由于蛇头 食物以及多个身体 都是动态创建的div
         // 封装一个方法用于创建div元素 参数扩展函数功能
-        var map=document.getElementById("map")
+        var map=document.getElementById("map");
+        var score=document.getElementById("score");
+        var num=0;
+        bForceGet=true;
+        var bodyNodes=[]; //放置所有身体
+        var Nodes=[]; //放置整条蛇
         function createDiv(color){
             // 创建一个div节点
             var div=document.createElement("div");
@@ -179,10 +195,156 @@
         }
         // 如何操作蛇头 js找到蛇头对应的div
         // 如何让蛇头移动起来 四个方向移动前需要判断一下当前蛇头是要向哪个方向进行移动
+        // 创建一个索引值.value 判断蛇头的移动方向
         var headNode=createDiv("red"); //创建蛇头
-        console.log(headNode);
+        Nodes.push(headNode);
+        //.value是判断蛇头的自动移动 
         var foodNode=createDiv('blue');//创建食物
-        console.log(foodNode);
+        function move() {
+            // 身体移动
+            if(bodyNodes.length>0){
+                for(var n=bodyNodes.length-1;n>=0;n--){
+                    //通过循环遍历让每一个身体移动起来
+                    //让身体跟着蛇头移动起来
+                    //反向循环为什么就可以
+                    switch (bodyNodes[n].value) {
+                case "左":
+                    bodyNodes[n].style.left=parseInt(bodyNodes[n].style.left)-50+"px";
+                break;
+                case "右":
+                    bodyNodes[n].style.left=parseInt(bodyNodes[n].style.left)+50+"px";
+                    break;
+                case "上":
+                    bodyNodes[n].style.top=parseInt(bodyNodes[n].style.top)-50+"px";
+                break;
+                case "下":
+                    bodyNodes[n].style.top=parseInt(bodyNodes[n].style.top)+50+"px";
+                break;
+                    }
+                // 方向跟上一块保持一致 n=0 bodyNodes[0]
+                if(n==0){
+                    bodyNodes[n].value=headNode.value
+                }else{
+                bodyNodes[n].value=bodyNodes[n-1].value
+                }
+            }
+
+        }
+            // 判断当前蛇头移动的方向 .value
+            switch (headNode.value) {
+                case "左":
+                    headNode.style.left=parseInt(headNode.style.left)-50+"px";
+                break;
+                case "右":
+                    headNode.style.left=parseInt(headNode.style.left)+50+"px";
+                    break;
+                case "上":
+                    headNode.style.top=parseInt(headNode.style.top)-50+"px";
+                break;
+                case "下":
+                    headNode.style.top=parseInt(headNode.style.top)+50+"px";
+                break;
+            }
+            // 撞墙死
+            if(parseInt(headNode.style.left)<0||parseInt(headNode.style.left)>450||parseInt(headNode.style.top)<0||parseInt(headNode.style.top)>450){
+                clearInterval(t);
+                alert("撞墙");
+                score.innerHTML = "<h1>得分:"+0+"</1>";
+                location.reload([bForceGet]) 
+            }
+            // 咬到自己身体死亡
+            if (bodyNodes.length>0) {
+                for(var n=0;n<bodyNodes.length;n++){
+                    if(headNode.style.left==bodyNodes[n].style.left&&headNode.style.top==bodyNodes[n].style.top){
+                        alert("这不是食物啊!");
+                        clearInterval(t);
+                        score.innerHTML = "<h1>得分:"+0+"</1>";
+                        location.reload([bForceGet]) 
+                    }
+                }
+            }
+            // 碰撞检测 检测是否和食物发生了碰撞（两个元素重合了 headNode foodNode）
+            if(headNode.style.left==foodNode.style.left&&headNode.style.top==foodNode.style.top){
+                num++;
+                score.innerHTML = "<h1>得分:"+num+"</1>";
+                //吃到了还要考虑身体，产生了新的身体
+                //而且要跟着头部的后面 没有身体最后一块就是头部 
+                var bodyNode=createDiv("yellow");
+                // 需要找到最后一块 把所有的身体放入一个容器里（数组）
+                var lastNode
+                if (bodyNodes.length>0) {
+                    lastNode=bodyNodes[bodyNodes.length-1]
+                }else{
+                    lastNode=headNode
+                }
+                // 如何产生新的身体，跟在最后一块的后面 需要知道当前最后一块的行走方向
+                // 假如最后一块 向左 新的身体在右边出现 .value 移动方向
+                switch(lastNode.value){
+                    case '左':
+                        bodyNode.style.left=parseInt(lastNode.style.left)+50+"px"
+                        bodyNode.style.top=lastNode.style.top
+                    break;
+                    case '右':
+                        bodyNode.style.left=parseInt(lastNode.style.left)-50+"px"
+                        bodyNode.style.top=lastNode.style.top
+                    break;
+                    case '上':
+                        bodyNode.style.top=parseInt(lastNode.style.top)+50+"px"
+                        bodyNode.style.left=lastNode.style.left
+                    break;
+                    case '下':
+                        bodyNode.style.top=parseInt(lastNode.style.top)-50+"px"
+                        bodyNode.style.left=lastNode.style.left
+                    break;
+                }
+                bodyNode.value=lastNode.value //新产生的身体需要跟随前一块 lastNode
+                bodyNodes.push(bodyNode);
+                Nodes.push(bodyNode);
+                //表示吃到食物了 需要重新刷新食物的位置 更新后会重合（需要解决）
+                var px=parseInt(Math.random()*10)*50;
+                var py=parseInt(Math.random()*10)*50;
+                for(var n=0;n<Nodes.length;n++){
+                    if (parseInt(Nodes[n].style.left) == px && parseInt(Nodes[n].style.top)==py) {
+                        px=parseInt(Math.random()*10)*50;
+                        py=parseInt(Math.random()*10)*50;
+                        n=-1;
+                    }
+                }
+                foodNode.style.left=px+"px"
+                foodNode.style.left=py+"px"
+            }
+        }
+        function changeTime(speed) {
+            t=setInterval(move, speed);
+        }
+        // 通过键盘的按键来改变蛇头的移动方向
+        // 通过不同的键值 对应不同键
+        // e表示事件对象 e.keyCode 键盘的键值
+        document.onkeydown=function(e){
+            switch(e.keyCode){
+                case 37:
+                    //锁住贪吃蛇移动方向
+                    if(headNode.value!="右"||bodyNodes.length==0){
+                      headNode.value="左"  
+                    }
+                break;
+                case 38:
+                    if(headNode.value!="下"||bodyNodes.length==0){
+                      headNode.value="上"  
+                    }
+                break;
+                case 39:
+                    if(headNode.value!="左"||bodyNodes.length==0){
+                      headNode.value="右"  
+                    }
+                break;
+                case 40:
+                    if(headNode.value!="上"||bodyNodes.length==0){
+                      headNode.value="下"  
+                    }
+                break;
+            }
+        }
     </script>
 </body>
 </html>
