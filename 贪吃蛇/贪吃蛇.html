@@ -163,9 +163,9 @@
     </div>
     <span id="score"><h1>得分:0</h1></span>
     <span>
-        <button onclick="changeTime('200')" style="width:50px; height:50px;font-size: 30px;">快</button>
-        <button onclick="changeTime('500')" style="width:50px; height:50px;font-size: 30px;">中</button>
-        <button onclick="changeTime('1000')" style="width:50px; height:50px;font-size: 30px;">慢</button>
+        <button onclick="changeTime('100')" style="width:50px; height:50px;font-size: 30px;">快</button>
+        <button onclick="changeTime('250')" style="width:50px; height:50px;font-size: 30px;">中</button>
+        <button onclick="changeTime('500')" style="width:50px; height:50px;font-size: 30px;">慢</button>
     </span>
     <script>
         // 在刷新页面的时候不仅要产生地图，还要产生两个div，分别对应蛇头以及身体
@@ -199,7 +199,7 @@
         var headNode=createDiv("red"); //创建蛇头
         Nodes.push(headNode);
         //.value是判断蛇头的自动移动 
-        var foodNode=createDiv('blue');//创建食物
+        var foodNode=createDiv("blue");//创建食物
         function move() {
             // 身体移动
             if(bodyNodes.length>0){
@@ -303,15 +303,21 @@
                 //表示吃到食物了 需要重新刷新食物的位置 更新后会重合（需要解决）
                 var px=parseInt(Math.random()*10)*50;
                 var py=parseInt(Math.random()*10)*50;
+                console.log(px);
+                console.log(py);
                 for(var n=0;n<Nodes.length;n++){
                     if (parseInt(Nodes[n].style.left) == px && parseInt(Nodes[n].style.top)==py) {
                         px=parseInt(Math.random()*10)*50;
                         py=parseInt(Math.random()*10)*50;
+                        console.log(px);
+                        console.log(py);
                         n=-1;
                     }
                 }
+                console.log(px);
+                console.log(py);
                 foodNode.style.left=px+"px"
-                foodNode.style.left=py+"px"
+                foodNode.style.top=py+"px"
             }
         }
         function changeTime(speed) {
