@@ -31,7 +31,28 @@
         position: relative;
         margin: 150px;
         /*left: ;*/
-        }   
+        }
+        #button1{
+            position: fixed;
+            margin-top: 20px;
+            margin-left: 205px;
+        }
+        #button2{
+            position: fixed;
+            margin-top: 100px;
+            margin-left: 130px;
+        }
+        #button3{
+            position: fixed;
+            margin-top: 100px;
+            margin-left: 280px;
+        }
+        #button4{
+            position: fixed;
+            margin-top: 180px;
+            margin-left: 205px;    
+        }
+
     </style>
 </head>
 <body>
@@ -167,6 +188,12 @@
         <button onclick="changeTime('250')" style="width:50px; height:50px;font-size: 30px;">中</button>
         <button onclick="changeTime('500')" style="width:50px; height:50px;font-size: 30px;">慢</button>
     </span>
+    <div>
+    <button onclick="changeDirection(38)" id="button1" style="width:50px; height:50px;font-size: 30px;">上</button>
+    <button onclick="changeDirection(37)" id="button2" style="width:50px; height:50px;font-size: 30px;">左</button>
+    <button onclick="changeDirection(39)" id="button3" style="width:50px; height:50px;font-size: 30px;">右</button>
+    <button onclick="changeDirection(40)" id="button4" style="width:50px; height:50px;font-size: 30px;">下</button></div>
+    
     <script>
         // 在刷新页面的时候不仅要产生地图，还要产生两个div，分别对应蛇头以及身体
         // 由于蛇头 食物以及多个身体 都是动态创建的div
@@ -326,6 +353,30 @@
         // 通过键盘的按键来改变蛇头的移动方向
         // 通过不同的键值 对应不同键
         // e表示事件对象 e.keyCode 键盘的键值
+        function changeDirection(coool){
+            switch(coool){
+                case 37:
+                    if(headNode.value!="右"||bodyNodes.length==0){
+                      headNode.value="左"  
+                    }
+                break;
+                case 38:
+                    if(headNode.value!="下"||bodyNodes.length==0){
+                      headNode.value="上"  
+                    }
+                break;
+                case 39:
+                    if(headNode.value!="左"||bodyNodes.length==0){
+                      headNode.value="右"  
+                    }
+                break;
+                case 40:
+                    if(headNode.value!="上"||bodyNodes.length==0){
+                      headNode.value="下"  
+                    }
+                break;
+            }
+        }
         document.onkeydown=function(e){
             switch(e.keyCode){
                 case 37:
